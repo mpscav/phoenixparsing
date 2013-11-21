@@ -21,7 +21,7 @@ def get_section(lst, name):
         items = [page.split("\\item ")[1:] for page in pages]
     else:
         items = section.split("\\item ")[1:]
-        items = [item.rstrip() for item in items]
+        items = [item.strip() for item in items]
     return items
 
 
@@ -31,9 +31,9 @@ def parse_item(item, pagenum):
     if match:
         text, value = match.groups()
     else:
-        text = item.rstrip()
+        text = item
         value = None
-    return (text, value, pagenum)
+    return (text.strip(), value, pagenum)
 
 
 def make_json(infile, outfile):
