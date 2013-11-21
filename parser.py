@@ -57,8 +57,8 @@ def make_json(infile, outfile):
             f.write('\n')
             f.write(scavlympics_json)
     else:
-        print items_json
-        print scavlympics_json
+        print(items_json)
+        print(scavlympics_json)
 
 
 if __name__ == "__main__":
