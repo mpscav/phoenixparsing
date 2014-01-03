@@ -25,40 +25,40 @@ def get_section(lst, name):
     return items
 
 
-def get_values(s):
-    "Convert a string to min and max values."
+def get_value(s):
+    """Convert a string to a numerical value. If eval() doesn't return a number
+    we return a value of -1 point and defer to human judgement."""
     match = search("^([\d.+\-*]+) points?$", s)
+    value = -1
     if match:
-        value = match.group(1)
+        value_s = match.group(1)
         try:
-            min = eval(value)
-            max = eval(value)
-        except ValueError:
-            print value
-            min = None
-            max = None
-    else:
-        min = None
-        max = None
-    return min, max
+            value = eval(value_s)
+        except:
+            pass
+    return value
 
 
 def parse_item(item, pagenum):
     "Turn an item into a tuple."
     match = search(r'(.*)[([](.*)[])]', item)
     if match:
-        text, value = match.groups()
+        text, value_s = match.groups()
     else:
         print("{} has no discernible value!".format(item))
-        text, value = item, "No value provided"
-    min, max = get_values(value)
-    return (text.strip(), value, min, max, pagenum)
+        text, value_s = item, "No value provided"
+    min = get_value(value_s)
+    max = get_value(value_s)
+    return (text.strip(), value_s, min, max, pagenum)
+
 
 def forbid(x, forbidden):
+    "Forbid a number that cannot appear in item numbers."
     if forbidden is None:
         return x
     else:
         return int((x+99-forbidden)/99 + x)
+
 
 def make_json(infile, outfile, forbidden=0):
     "Convert a Scav list in LaTeX into JSON."
