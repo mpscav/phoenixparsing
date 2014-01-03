@@ -49,22 +49,24 @@ def parse_item(item, pagenum):
     if match:
         text, value = match.groups()
     else:
-        msg = ("{} has no discernible value!".format(item),)
-        text, value = item, ""
-        print msg
+        print("{} has no discernible value!".format(item))
+        text, value = item, "No value provided"
     min, max = get_values(value)
     return (text.strip(), value, min, max, pagenum)
 
+def forbid(x, forbidden):
+    if forbidden is None:
+        return x
+    else:
+        return int((x+99-forbidden)/99 + x)
 
-def make_json(infile, outfile):
+def make_json(infile, outfile, forbidden=0):
     "Convert a Scav list in LaTeX into JSON."
-    def thirteen(x):
-        return int((x+86)/99 + x)
     scavlympics, items = split_into_sections(infile)
     items = [parse_item(item, pagenum + 1)
              for pagenum, page in enumerate(items[:-1]) for item in page]
     # add item numbers & dictify
-    items = [{'number':thirteen(i+1), # 2014 scav
+    items = [{'number':forbid(i+1, forbidden), # 2014 scav
               'page':pagenum,
               'text':text,
               'value':value,
@@ -89,5 +91,7 @@ if __name__ == "__main__":
     parser.add_argument("infile", help="The list to parse.")
     parser.add_argument("-o", "--outfile", dest="outfile",
                         help="Output file to dump JSON to. Defaults to stdout.")
+    parser.add_argument("-f", "--forbid", dest="forbidden", type=int,
+                        default=None, help="Forbidden number in list.")
     args = parser.parse_args()
-    make_json(args.infile, args.outfile)
+    make_json(args.infile, args.outfile, args.forbidden)
