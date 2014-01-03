@@ -25,15 +25,35 @@ def get_section(lst, name):
     return items
 
 
+def get_values(s):
+    "Convert a string to min and max values."
+    match = search("^([\d.+\-*]+) points?$", s)
+    if match:
+        value = match.group(1)
+        try:
+            min = eval(value)
+            max = eval(value)
+        except ValueError:
+            print value
+            min = None
+            max = None
+    else:
+        min = None
+        max = None
+    return min, max
+
+
 def parse_item(item, pagenum):
     "Turn an item into a tuple."
     match = search(r'(.*)[([](.*)[])]', item)
     if match:
         text, value = match.groups()
     else:
-        text = item
-        value = None
-    return (text.strip(), value, pagenum)
+        msg = ("{} has no discernible value!".format(item),)
+        text, value = item, ""
+        print msg
+    min, max = get_values(value)
+    return (text.strip(), value, min, max, pagenum)
 
 
 def make_json(infile, outfile):
@@ -47,14 +67,16 @@ def make_json(infile, outfile):
     items = [{'number':thirteen(i+1), # 2014 scav
               'page':pagenum,
               'text':text,
-              'value': value}
-             for i, (text, value, pagenum) in enumerate(items)]
+              'value':value,
+              'min':min,
+              'max':max}
+             for i, (text, value, min, max, pagenum) in enumerate(items)]
     items_json = (dumps(items, sort_keys=True, indent=4))
     scavlympics_json = (dumps(scavlympics, sort_keys=True, indent=4))
     if outfile:
         with open(outfile, 'w') as f:
             f.write(items_json)
-            f.write('\n')
+            f.write('\n\n')
             f.write(scavlympics_json)
     else:
         print(items_json)
