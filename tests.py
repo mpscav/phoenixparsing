@@ -4,11 +4,11 @@ from nose.tools import assert_equal
 
 from parser import make_json, get_value, forbid
 
-make_json("texforscavvies509.tex", "test.txt")
-with open("test.txt", "r") as f:
-    strlst = f.read()
+
+strlst = make_json("texforscavvies509.tex")
 lst = [loads(s) for s in strlst.split("\n\n")]
 items, scavlympics = (lst[0], lst[1])
+
 
 def test_list_length():
     assert_equal(len(items), 314)
@@ -27,8 +27,8 @@ def test_get_value():
 
 def test_item_232():
     obs = [item for item in items if item["number"] == 232][0]
-    assert_equal(obs["min"], 26.2)
-    assert_equal(obs["max"], 26.2)
+    assert_equal(obs["min_val"], 26.2)
+    assert_equal(obs["max_val"], 26.2)
 
 
 def test_forbid():

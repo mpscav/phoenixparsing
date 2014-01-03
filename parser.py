@@ -28,7 +28,7 @@ def get_section(lst, name):
 def get_value(s):
     """Convert a string to a numerical value. If eval() doesn't return a number
     we return a value of -1 point and defer to human judgement."""
-    match = search("^([\d.+\-*]+) points?$", s)
+    match = search(r"^([\d.+\-*]+) points?$", s)
     value = -1
     if match:
         value_s = match.group(1)
@@ -47,9 +47,9 @@ def parse_item(item, pagenum):
     else:
         print("{} has no discernible value!".format(item))
         text, value_s = item, "No value provided"
-    min = get_value(value_s)
-    max = get_value(value_s)
-    return (text.strip(), value_s, min, max, pagenum)
+    min_val = get_value(value_s)
+    max_val = get_value(value_s)
+    return (text.strip(), value_s, min_val, max_val, pagenum)
 
 
 def forbid(x, forbidden):
@@ -60,19 +60,19 @@ def forbid(x, forbidden):
         return int((x+99-forbidden)/99 + x)
 
 
-def make_json(infile, outfile, forbidden=0):
+def make_json(infile, outfile=None, forbidden=0):
     "Convert a Scav list in LaTeX into JSON."
     scavlympics, items = split_into_sections(infile)
     items = [parse_item(item, pagenum + 1)
              for pagenum, page in enumerate(items[:-1]) for item in page]
     # add item numbers & dictify
-    items = [{'number':forbid(i+1, forbidden), # 2014 scav
+    items = [{'number':forbid(i+1, forbidden),
               'page':pagenum,
               'text':text,
               'value':value,
-              'min':min,
-              'max':max}
-             for i, (text, value, min, max, pagenum) in enumerate(items)]
+              'min_val':min_val,
+              'max_val':max_val}
+             for i, (text,value,min_val,max_val,pagenum) in enumerate(items)]
     items_json = (dumps(items, sort_keys=True, indent=4))
     scavlympics_json = (dumps(scavlympics, sort_keys=True, indent=4))
     if outfile:
@@ -81,8 +81,7 @@ def make_json(infile, outfile, forbidden=0):
             f.write('\n\n')
             f.write(scavlympics_json)
     else:
-        print(items_json)
-        print(scavlympics_json)
+        return "{}\n\n{}".format(items_json, scavlympics_json)
 
 
 if __name__ == "__main__":
