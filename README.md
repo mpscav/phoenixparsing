@@ -4,5 +4,5 @@ phoenixparsing
 Usage:
 
 ```
-python parser.py <infile> <outfile>
+python parser.py <infile> -o <outfile>
 ```
